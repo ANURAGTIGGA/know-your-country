@@ -11,19 +11,23 @@
   <body>
     <div id="app">
       <div class="container flex flex-col items-center justify-start min-h-screen">
-        <h1 class="text-3xl font-bold">Select a country to start!</h1>
+        <header class="w-full flex justify-between items-center p-4 text-white">
+          <img src="/earth.png" class="main-logo" alt="Logo" />
+          <h1 class="header-text text-3xl font-bold uppercase">Know Your Country</h1>
+        </header>
         <div class="content flex-1 w-full">
             <div class="mt-4 flex flex-col sm:flex-row gap-2">
-              <input id="searchInput" type="text" placeholder="Enter country name" class="border p-2 rounded w-full sm:w-auto">
-              <button id="searchBtn" class="bg-blue-500 text-white px-4 py-2 rounded">Search</button>
+              <input id="searchInput" type="text" placeholder="Enter country name" class="border p-5 rounded w-full sm:w-auto">
+              <button id="searchBtn" class="bg-blue-500 text-white p-20 rounded">Search</button>
+              <!-- <h1 class="text-3xl font-medium">Select or search a country to start!</h1> -->
             </div>
 
             <div id="loader" class="hidden mt-4 text-center">Loading...</div>
             <div id="error" class="hidden mt-4 text-red-500"></div>
 
             <div id="countryDetails" class="mt-4 space-y-4"></div>
-
-            <div id="map" class="h-64 mt-4"></div>
+            <div id="map" class="hidden h-64 mt-4"></div>
+            <div id="countryList" class="mt-4 space-y-4 flex flex-wrap gap-5"></div>
         </div>
         <div id="footer"></div>
       </div>

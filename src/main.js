@@ -1,16 +1,10 @@
 import './style.css'
-//import { setupCounter } from './counter.js'
 import { createFooter } from './components/Footer.js';
-
-// document.querySelector('#app').innerHTML = `
-  
-// `
-
-//setupCounter(document.querySelector('#counter'))
 
 document.addEventListener('DOMContentLoaded', function() {
   const footerHtml = createFooter();
   document.querySelector('#footer').innerHTML = footerHtml;
+  fetchAllCountries();
 });
 
 /*
@@ -24,8 +18,13 @@ const loader = document.getElementById('loader');
 const errorElem = document.getElementById('error');
 
 const countryDetails = document.getElementById("countryDetails");
+const countryList = document.getElementById("countryList");
+
+const mapContainer = document.getElementById("map");
 
 let map; // Global variable to hold the map instance
+let countriesList = []; // Array to hold all countries data
+let currentCountyList = []; // Array to hold the current list of countries displayed
 
 /*
 Add event listener to the search button
@@ -43,11 +42,67 @@ searchButton.addEventListener('click', onClickHandler);
 
 /** */
 
+async function fetchAllCountries() {
+  loader.classList.remove('hidden');
+  errorElem.classList.add('hidden');
+  mapContainer.classList.add('hidden'); // Hide map initially
 
+  // Clear previous country details
+  countryDetails.innerHTML = '';
+
+  // Clear previous error message
+  errorElem.textContent = '';
+
+  // Clear previous country list
+  countryList.innerHTML = '';
+
+  try {
+    const response = await fetch('https://restcountries.com/v3.1/all?fields=name,flags');
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log(data);
+    countriesList = data;
+    currentCountyList = data.slice(0,10); // Initialize current list with all countries
+
+    // Clear previous country list
+    countryList.innerHTML = '';
+
+    // Populate the country list
+    currentCountyList.forEach(country => {
+      const countryItem = document.createElement('div');
+      countryItem.className = 'card p-10 rounded cursor-pointer flex-grow flex-shrink basis-[200px] min-w-[200px] hover:bg-gray-100';
+      countryItem.textContent = country.name.common;
+      countryItem.addEventListener('click', () => {
+        fetchCountryData(country.name.common);
+      });
+      const flagImg = document.createElement('img');
+      flagImg.src = country.flags.svg;
+      flagImg.alt = `${country.name.common} flag`;
+      flagImg.className = 'inline-block mr-2';
+      countryItem.prepend(flagImg);
+      countryList.appendChild(countryItem);
+    });
+
+    if (data.length === 0) {
+      errorElem.classList.remove('hidden');
+      errorElem.textContent = "No countries found";
+    }
+  } catch (error) {
+    errorElem.classList.remove('hidden');
+    errorElem.textContent = error.message || "Failed to load the countries";
+    console.error('Error fetching country data:', error);
+  } finally {
+    loader.classList.add('hidden');
+  }
+}
 
 async function fetchCountryData(name) {
   loader.classList.remove('hidden');
   errorElem.classList.add('hidden');
+  mapContainer.classList.add('hidden'); // Show map when fetching country data
 
   try {
     const response = await fetch(
@@ -65,6 +120,14 @@ async function fetchCountryData(name) {
     if (!country) {
         throw new Error(`Invalid Country Name`);
     }
+    mapContainer.classList.remove('hidden'); // Show map when country data is fetched
+
+    // Clear previous country details
+    countryDetails.innerHTML = '';
+
+    // Clear previous error message
+    errorElem.textContent = '';
+
     const languages = country.languages
         ? Object.values(country.languages).join(",")
         : "N/A";
@@ -89,6 +152,7 @@ async function fetchCountryData(name) {
     errorElem.textContent =
             error.message || "Failed to load the country information";
     console.error('Error fetching country data:', error);
+    mapContainer.classList.add('hidden'); // Hide map if there's an error
   } finally {
     loader.classList.add('hidden');
   }
