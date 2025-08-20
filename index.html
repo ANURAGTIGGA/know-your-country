@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script async src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <title>Know Your Country</title>
+  </head>
+  <body>
+    <div id="app">
+      <div class="container flex flex-col items-center justify-start min-h-screen">
+        <h1 class="text-3xl font-bold">Select a country to start!</h1>
+        <div class="content flex-1 w-full">
+            <div class="mt-4 flex flex-col sm:flex-row gap-2">
+              <input id="searchInput" type="text" placeholder="Enter country name" class="border p-2 rounded w-full sm:w-auto">
+              <button id="searchBtn" class="bg-blue-500 text-white px-4 py-2 rounded">Search</button>
+            </div>
+
+            <div id="loader" class="hidden mt-4 text-center">Loading...</div>
+            <div id="error" class="hidden mt-4 text-red-500"></div>
+
+            <div id="countryDetails" class="mt-4 space-y-4"></div>
+
+            <div id="map" class="h-64 mt-4"></div>
+        </div>
+        <div id="footer"></div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
