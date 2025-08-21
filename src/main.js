@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
 /*
 Define dom elemements
 */
-
+const contentContainer = document.querySelector('.content');
 const searchInput = document.getElementById('searchInput');
 const searchButton = document.getElementById('searchBtn');
 
@@ -26,6 +26,9 @@ let map; // Global variable to hold the map instance
 let countriesList = []; // Array to hold all countries data
 let currentCountyList = []; // Array to hold the current list of countries displayed
 
+let currentIndex = 0;
+const perPage = 20;
+
 /*
 Add event listener to the search button
 */
@@ -39,6 +42,17 @@ function onClickHandler() {
 }
 
 searchButton.addEventListener('click', onClickHandler);
+
+function onHandleScroll() {
+  if (contentContainer.scrollTop + contentContainer.clientHeight >= contentContainer.scrollHeight - 100) {
+    // If not already loading and not reached end:
+    if (currentIndex < countriesList.length) {
+      renderCountries();
+    }
+  }
+}
+
+contentContainer.addEventListener('scroll', onHandleScroll);
 
 /** */
 
@@ -65,26 +79,9 @@ async function fetchAllCountries() {
     const data = await response.json();
     console.log(data);
     countriesList = data;
-    currentCountyList = data.slice(0,10); // Initialize current list with all countries
 
-    // Clear previous country list
-    countryList.innerHTML = '';
-
-    // Populate the country list
-    currentCountyList.forEach(country => {
-      const countryItem = document.createElement('div');
-      countryItem.className = 'card p-10 rounded cursor-pointer flex-grow flex-shrink basis-[200px] min-w-[200px] hover:bg-gray-100';
-      countryItem.textContent = country.name.common;
-      countryItem.addEventListener('click', () => {
-        fetchCountryData(country.name.common);
-      });
-      const flagImg = document.createElement('img');
-      flagImg.src = country.flags.svg;
-      flagImg.alt = `${country.name.common} flag`;
-      flagImg.className = 'inline-block mr-2';
-      countryItem.prepend(flagImg);
-      countryList.appendChild(countryItem);
-    });
+    // render countries
+    renderCountries();
 
     if (data.length === 0) {
       errorElem.classList.remove('hidden');
@@ -159,6 +156,25 @@ async function fetchCountryData(name) {
 }
 
 //fetchCountryData('India'); // Example usage, replace 'India' with any country name
+
+function renderCountries() {
+  const nextItems = countriesList.slice(currentIndex, currentIndex + perPage);
+  nextItems.forEach(country => {
+    const countryItem = document.createElement('div');
+    countryItem.className = 'card p-10 rounded cursor-pointer flex-grow flex-shrink basis-[200px] min-w-[200px] hover:bg-gray-100';
+    countryItem.textContent = country.name.common;
+    countryItem.addEventListener('click', () => {
+      fetchCountryData(country.name.common);
+    });
+    const flagImg = document.createElement('img');
+    flagImg.src = country.flags.svg;
+    flagImg.alt = `${country.name.common} flag`;
+    flagImg.className = 'inline-block mr-2';
+    countryItem.prepend(flagImg);
+    countryList.appendChild(countryItem);
+  });
+  currentIndex += perPage;
+}
 
 
 function drawMap(latlang, name) {

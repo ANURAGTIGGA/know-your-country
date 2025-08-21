@@ -76,7 +76,7 @@ html, body {
 
 .content {
   overflow-y: scroll;
-  max-height: calc(100vH - 136px); /* Adjusted for header and footer */
+  max-height: calc(100vH - 136px); /* Adjusted for header and footer  */
 }
 
 .main-logo {
