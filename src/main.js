@@ -17,6 +17,7 @@ const searchButton = document.getElementById('searchBtn');
 const loader = document.getElementById('loader');
 const errorElem = document.getElementById('error');
 
+const detailsCloseButton = document.getElementById('closeBtn');
 const countryDetails = document.getElementById("countryDetails");
 const countryList = document.getElementById("countryList");
 
@@ -53,6 +54,17 @@ function onHandleScroll() {
 }
 
 contentContainer.addEventListener('scroll', onHandleScroll);
+
+detailsCloseButton.addEventListener('click', () => {
+  countryDetails.innerHTML = ''; // Clear country details
+  mapContainer.classList.add('hidden'); // Hide map
+  detailsCloseButton.classList.add('hidden'); // Hide close button
+  currentIndex = 0; // Reset index for next fetch
+  countryList.innerHTML = ''; // Clear country list
+  searchInput.value = ''; // Clear search input
+  contentContainer.addEventListener('scroll', onHandleScroll); // Re-enable scroll event
+  renderCountries();
+});
 
 /** */
 
@@ -100,6 +112,8 @@ async function fetchCountryData(name) {
   loader.classList.remove('hidden');
   errorElem.classList.add('hidden');
   mapContainer.classList.add('hidden'); // Show map when fetching country data
+  countryList.classList.add('hidden');
+  contentContainer.removeEventListener('scroll', onHandleScroll);
 
   try {
     const response = await fetch(
@@ -118,6 +132,7 @@ async function fetchCountryData(name) {
         throw new Error(`Invalid Country Name`);
     }
     mapContainer.classList.remove('hidden'); // Show map when country data is fetched
+    detailsCloseButton.classList.remove('hidden'); // Show close button
 
     // Clear previous country details
     countryDetails.innerHTML = '';
@@ -143,6 +158,7 @@ async function fetchCountryData(name) {
             </div>
         `;
     
+    updateTimezones(country.timezones);
     drawMap(country.latlng, country.name.common);
   } catch (error) {
     errorElem.classList.remove('hidden');
@@ -158,24 +174,75 @@ async function fetchCountryData(name) {
 //fetchCountryData('India'); // Example usage, replace 'India' with any country name
 
 function renderCountries() {
+  countryList.classList.remove('hidden');
+
   const nextItems = countriesList.slice(currentIndex, currentIndex + perPage);
   nextItems.forEach(country => {
     const countryItem = document.createElement('div');
     countryItem.className = 'card p-10 rounded cursor-pointer flex-grow flex-shrink basis-[200px] min-w-[200px] hover:bg-gray-100';
-    countryItem.textContent = country.name.common;
+    //countryItem.textContent = country.name.common;
     countryItem.addEventListener('click', () => {
       fetchCountryData(country.name.common);
     });
+    const countryName = document.createElement('h2');
+    countryName.className = 'text-l font-bold';
+    countryName.textContent = country.name.common;
+    countryItem.appendChild(countryName);
+    
+    // Create and append the flag image
     const flagImg = document.createElement('img');
     flagImg.src = country.flags.svg;
     flagImg.alt = `${country.name.common} flag`;
-    flagImg.className = 'inline-block mr-2';
+    flagImg.className = 'flag inline-block mr-2';
     countryItem.prepend(flagImg);
     countryList.appendChild(countryItem);
   });
   currentIndex += perPage;
 }
 
+function updateTimezones(timezones) {
+    const timezoneList = document.getElementById("timezoneList");
+    timezoneList.innerHTML = "";
+
+    timezones.forEach((tz) => {
+        const li = document.createElement("li");
+        const localTime = getTimeUsingIntl(tz);
+
+        li.textContent = `${tz} - ${localTime}`;
+        timezoneList.appendChild(li);
+    });
+}
+
+function getTimeUsingIntl(tz) {
+    try {
+        const options = {
+            timeZone: convertToIANA(tz),
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+        };
+        return Intl.DateTimeFormat("en-US", options).format(new Date());
+    } catch (err) {
+        console.warn(`Timezone ${tz} not supported, falling back.`);
+        return "Unsupported timezone";
+    }
+}
+
+function convertToIANA(utcString) {
+    // Basic support for known UTC formats
+    if (utcString === "UTC") return "Etc/UTC";
+
+    const match = utcString.match(/^UTC([+-]\d{2}):(\d{2})$/);
+    if (match) {
+        const [, hour, min] = match;
+        // Convert UTC offset to Etc/GMT format (note: reverse sign for IANA)
+        const offset = parseInt(hour, 10);
+        const sign = offset < 0 ? "+" : "-";
+        return `Etc/GMT${sign}${Math.abs(offset)}`; // IANA flips signs
+    }
+
+    return "Etc/UTC"; // fallback
+}
 
 function drawMap(latlang, name) {
     const [lat, lng] = latlang;
