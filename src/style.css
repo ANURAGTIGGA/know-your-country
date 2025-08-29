@@ -57,6 +57,10 @@ html, body {
   z-index: -1; /* Place behind content */
 }
 
+.container {
+  margin: 0 auto;
+}
+
 .header-text {
     background: linear-gradient(to right, #a5dc69, #79d2fa, #242424);
     background-clip: text;
@@ -125,16 +129,3 @@ button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
-
-/* @media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-} */
