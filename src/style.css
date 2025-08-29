@@ -62,7 +62,7 @@ html, body {
 }
 
 .header-text {
-    background: linear-gradient(to right, #a5dc69, #79d2fa, #242424);
+    background: linear-gradient(to right, #a5dc69, #79d2fa, #3bbef5);
     background-clip: text;
     color: transparent;
 }
@@ -113,7 +113,7 @@ html, body {
 
 button {
   border-radius: 8px;
-  border: 1px solid transparent;
+  border: 1px solid rgba(255, 255, 255, 0.87);
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;

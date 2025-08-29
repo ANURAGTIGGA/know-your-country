@@ -18,9 +18,9 @@ const loader = document.getElementById('loader');
 const errorElem = document.getElementById('error');
 
 const detailsCloseButton = document.getElementById('closeBtn');
+const detailsContainer = document.getElementById('details-container');
 const countryDetails = document.getElementById("countryDetails");
 const countryList = document.getElementById("countryList");
-
 const mapContainer = document.getElementById("map");
 
 let map; // Global variable to hold the map instance
@@ -57,6 +57,7 @@ contentContainer.addEventListener('scroll', onHandleScroll);
 
 detailsCloseButton.addEventListener('click', () => {
   countryDetails.innerHTML = ''; // Clear country details
+  detailsContainer.classList.add('hidden'); // Hide details container
   mapContainer.classList.add('hidden'); // Hide map
   detailsCloseButton.classList.add('hidden'); // Hide close button
   currentIndex = 0; // Reset index for next fetch
@@ -71,6 +72,7 @@ detailsCloseButton.addEventListener('click', () => {
 async function fetchAllCountries() {
   loader.classList.remove('hidden');
   errorElem.classList.add('hidden');
+  detailsContainer.classList.add('hidden'); // Hide details container
   mapContainer.classList.add('hidden'); // Hide map initially
 
   // Clear previous country details
@@ -111,7 +113,8 @@ async function fetchAllCountries() {
 async function fetchCountryData(name) {
   loader.classList.remove('hidden');
   errorElem.classList.add('hidden');
-  mapContainer.classList.add('hidden'); // Show map when fetching country data
+  detailsContainer.classList.add('hidden'); // Hide details container
+  mapContainer.classList.add('hidden'); // Hide map when fetching country data
   countryList.classList.add('hidden');
   contentContainer.removeEventListener('scroll', onHandleScroll);
 
@@ -131,6 +134,7 @@ async function fetchCountryData(name) {
     if (!country) {
         throw new Error(`Invalid Country Name`);
     }
+    detailsContainer.classList.remove('hidden'); // Show details container
     mapContainer.classList.remove('hidden'); // Show map when country data is fetched
     detailsCloseButton.classList.remove('hidden'); // Show close button
 
@@ -145,15 +149,17 @@ async function fetchCountryData(name) {
         : "N/A";
 
     countryDetails.innerHTML = `
-            <div class="p-4 border rounded shadow">
-                <img src="${country.flags.svg}" alt="flag" class="w-32 mb-2" />
-                <h2 class="text-xl font-bold">${country.name.common}</h2>
-                <p><strong>Capital:</strong> ${country.capital}</p>
+            <div class="text-left">
+                <img src="${country.flags.svg}" alt="flag" class="w-[250px] mb-2" />
+                <div class="flex items-center mb-2">
+                  <h2 class="text-xl font-bold mr-[5px]">${country.name.common}</h2>
+                  <p><strong>| Capital:</strong> ${country.capital}</p>
+                </div>
                 <p><strong>Population:</strong> ${country.population.toLocaleString()}</p>
                 <p><strong>Languages:</strong> ${languages}</p>
                 <div class="mb-4">
                     <h2 class="text-xl font-semibold mb-2">Local Times</h2>
-                    <ul id="timezoneList" class="list-disc ml-6"></ul>
+                    <ul id="timezoneList" class="list-disc ml-6 list-none"></ul>
                 </div>
             </div>
         `;
@@ -165,6 +171,7 @@ async function fetchCountryData(name) {
     errorElem.textContent =
             error.message || "Failed to load the country information";
     console.error('Error fetching country data:', error);
+    detailsContainer.classList.add('hidden'); // Hide details container if there's an error
     mapContainer.classList.add('hidden'); // Hide map if there's an error
   } finally {
     loader.classList.add('hidden');
